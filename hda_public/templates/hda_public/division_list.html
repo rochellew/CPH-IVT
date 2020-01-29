@@ -1,0 +1,38 @@
+{% extends 'hda_public/base.html' %}
+{% comment %}
+Page that displayes list of U.S. Census Divisions.
+
+Caitlin Emond
+{% endcomment %}
+
+{% block title %} Health Indicators {% endblock %}
+
+{% block content %}
+
+{# This lets us a use a custom tempate tag to encode URL query strings #}
+{% load urlparams %}
+
+{# Grab the 'choice' parameter from the URL query string and store it in a variable #}
+{% with choice=request.GET.choice %}
+
+{# Table of divisions to select from - should include only those for the current page, using Django's pagination system #}
+<table class="table table-hover">
+    <h3>Select a U.S. Census Division</h3>
+    <thead>
+        <tr>
+            <th scope="col">Division Number</th>
+            <th scope="col">Division Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for division in divisions %}
+    		<tr>
+        
+                <td>{{ division.division_num }}</td>
+                <td>{{ division.division_name }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+</table>
+{% endwith %}
+{% endblock %}

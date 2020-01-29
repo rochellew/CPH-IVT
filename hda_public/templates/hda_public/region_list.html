@@ -1,0 +1,38 @@
+{% extends 'hda_public/base.html' %}
+{% comment %}
+Page that displayes list of U.S. Census Regions.
+
+Caitlin Emond
+{% endcomment %}
+
+{% block title %} Health Indicators {% endblock %}
+
+{% block content %}
+
+{# This lets us a use a custom tempate tag to encode URL query strings #}
+{% load urlparams %}
+
+{# Grab the 'choice' parameter from the URL query string and store it in a variable #}
+{% with choice=request.GET.choice %}
+
+{# Table of regions to select from - should include only those for the current page, using Django's pagination system #}
+<table class="table table-hover">
+    <h3>Select a U.S. Census Region</h3>
+    <thead>
+        <tr>
+            <th scope="col">Region Number</th>
+            <th scope="col">Region Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for region in regions %}
+    		<tr>
+        
+                <td>{{ region.region_num }}</td>
+                <td>{{ region.region_name }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+</table>
+{% endwith %}
+{% endblock %}
