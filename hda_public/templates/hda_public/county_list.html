@@ -1,0 +1,62 @@
+{% extends 'hda_public/base.html' %}
+{% comment %}
+Page that displayes paginated list of counties in a particular state to select from.
+Links are to the county overview page.
+
+Oluwafeyisayo Oyeniyi, Kim Hawkins, Matt Seiler
+{% endcomment %}
+
+{# This lets us a use a custom tempate tag to encode URL query strings #}
+{% load urlparams %}
+
+{% block title %} Counties {% endblock %}
+
+{% block content %}
+
+{# Link back to the state selection page #}
+<a href="{% url 'state_list' %}"> &larr; View all states </a>
+
+{# header shows the currently selected state #}
+<h3>{{ state }}</h3>
+
+{# Table of counties in this state for the current page #}
+<table class="table table-hover">
+	<thead>
+		<tr>
+            <th scope ="col">Fips Code</th>
+		    <th scope="col">Name</th>
+		</tr>
+	</thead>
+    <tbody>
+    {% for county in counties %}
+		<tr>
+            <td>{{ county.fips }}</td>
+            <td><a href="{% url 'county' state_short_name county.fips %}">{{ county.name }}</a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{# Page numbering #}
+<ul class="pagination center-align">
+
+{% if page_obj.has_previous %}
+    <li class="">
+        <a href="{% url 'county_list' state_short_name %}{% urlparams page=page_obj.previous_page_number %}">Previous</a>
+    </li>
+{% endif %}
+
+{% for i in range %}
+    <li class="{% if page_obj.number == forloop.counter %}active{% endif %}">
+        <a href="{% url 'county_list' state_short_name %}{% urlparams page=forloop.counter %}">{{ forloop.counter }}</a>
+    </li>
+{% endfor %}
+
+{% if page_obj.has_next %}
+    <li class="">
+        <a href="{% url 'county_list' state_short_name %}{% urlparams page=page_obj.next_page_number %}">Next</a>
+    </li>
+{% endif %}
+</ul>
+
+{% endblock %}

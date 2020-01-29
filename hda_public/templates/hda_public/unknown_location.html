@@ -1,0 +1,20 @@
+{% extends 'hda_public/base.html' %}
+
+{% load urlparams %}
+
+{% block title %} Unknown location {% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1>:(</h1>
+    <p>We couldn't find the location you requested.</p>
+    <p>
+        <a href="{% url 'state_list' %}{% urlparams choice='county' %}"
+            class="btn btn-default btn-lg"
+            role="button">Look for a county</a>
+        <a href="{% url 'state_list' %}{% urlparams choice='state' %}"
+            class="btn btn-default btn-lg"
+            role="button">Look for a state</a>
+    </p>
+</div>
+{% endblock %}

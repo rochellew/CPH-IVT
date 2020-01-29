@@ -1,0 +1,4 @@
+first_line = true
+quotes = """
+output_style = reST
+input_style = auto

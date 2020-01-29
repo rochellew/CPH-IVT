@@ -1,0 +1,53 @@
+{% extends 'hda_public/base.html' %}
+
+{% block title %}Results{% endblock %}
+
+{% block content %}
+
+{% if counties or states %}
+
+  <h1>Search results</h2>
+  <p>For &quot;{{ query }}&quot;</p>
+
+  <div class="row">
+
+  {% if counties %}
+    <div class="col-md-4">
+      <h2>Counties</h2>
+      <ul>
+      {% for county in counties %}
+        <li>
+          <a href="{% url 'county' county.state.short county.fips %}">{{ county.name }}, {{ county.state.short}}</a>
+        </li>
+      {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if states %}
+    <div class="col-md-4">
+      <h2>States</h2>
+      <ul>
+      {% for state in states %}
+        <li>
+            <a href="{% url 'state' state.short %}">{{ state.full }} ({{state.short}})
+        </li>
+      {% endfor %}
+      </ul>
+    </div
+  {% endif %}
+
+  </div><!-- /end row-->
+
+{% elif error %}
+  <div class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+
+{% else %}
+  <h1>No results</h1>
+  <p>No states or counties found matching &quot;{{ query }}&quot;</p>
+
+{% endif %}
+
+{% endblock %}

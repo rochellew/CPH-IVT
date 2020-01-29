@@ -1,0 +1,114 @@
+{% extends 'hda_privileged/base.html' %}
+{% load staticfiles %}
+{% block content %}
+
+    <head>
+        <!-- Make health indicator selected same color as navbar -->
+        <style>.nav-pills > li.active > a, .nav-pills > li.active > a:focus {
+            background-color: #69899f;
+            color: #d7e2e9;
+        }</style>
+    </head>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Data Management</h1>
+            <hr style="margin-top:0;"/>
+        </div>
+    </div>
+
+    <!-- Column to list clickable indicators from db -->
+    <div class="row">
+        <div class="col-sm-3">
+            <h3>Indicators</h3>
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <!--button to reset and display all indicators-->
+                    <a role="button"
+                       href="{% url 'priv:dashboard1' %}"
+                       class="btn btn-primary btn-med"
+                       style="background-color:#69899f;color: #d7e2e9;">Reset Selection</a>
+
+                    <!--add a space to better align left and right column data-->
+                    <br/>
+                    <table class="table">
+                        {% for ind in indicators %}
+                            <!-- Align indicator and edit button horizontally -->
+                            <tr>
+                                <td role="presentation" style="border:none"
+                                    class="{% if selected_indicator and selected_indicator == ind %}active{% endif %}">
+                                    <a href="{% url 'priv:dashboardselected' ind.id %}">
+                                        {{ ind.name }}{% if ind.important %}&nbsp;&star;{% endif %}
+                                    </a>
+                                </td>
+                                <td role="presentation" style="border:none">
+                                    <a href="{% url 'priv:updateIndicator' ind.id %}">
+                                        <i class="fa fa-edit"
+                                           style="font-size:10px; color:#69899f;"
+                                           title="Edit Indicator Name"></i>
+                                    </a>
+                                </td>
+                                <td role="presentation" style="border:none">
+                                    <a href="{% url 'priv:deleteIndicator' ind.id %}">
+                                        <i class="fa fa-remove"
+                                           style="font-size:15px; color:red;"
+                                           title="Delete Indicator"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <br/>
+                    <!-- Button to add a new indicator -->
+                    <a role="button"
+                       href="{% url 'priv:createIndicator' %}"
+                       class="btn btn-primary btn-med"
+                       style="background-color:#69899f;color: #d7e2e9;">Add Indicator</a>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Space between columns -->
+        <div class="col-sm-1"></div>
+
+        <!-- File list for specific indicator viewable by clickable indicators -->
+        <div class="col-sm-8">
+            <h3>{{ indicator_message }}</h3>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table">
+                        <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Year</th>
+                            <th scope="col">Upload Date</th>
+                            <th scope="col">User</th>
+                            <th scope="col">File</th>
+                            <th scope="col">Delete</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for ds in datasets %}
+                            <tr>
+                                <td>{{ ds.year }}</td>
+                                <td>{{ ds.source_document.uploaded_at }}</td>
+                                <td>{{ ds.source_document.user }}</td>
+                                <td>{{ ds.source_document.file }}</td>
+                                <td><a href="{% url 'priv:deleteDataset' ds.id %}">
+                                    <i class="fa fa-remove" style="font-size:15px; color:red;"
+                                       title="Delete Dataset"></i></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <a role="button"
+                       href="{% url 'priv:uploadData' %}"
+                       class="btn btn-primary btn-med"
+                       style="background-color:#69899f;color: #d7e2e9;">Add Data</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

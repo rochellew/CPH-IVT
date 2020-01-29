@@ -1,0 +1,26 @@
+{% extends 'hda_privileged/base.html' %}
+
+{% comment %} Feyi {% endcomment %}
+{% comment %} Renders the 'confirm delete' page for the deletion of datasets from the database for the privileged user {% endcomment %}
+{% block content %}
+
+{% comment %} Wrap the form in a panel for appearance {% endcomment %}
+<div class='panel panel-primary'>
+
+  <div class="panel-heading" style="background-color:#69899f;color: #d7e2e9;">
+    <h3 class="panel-title">Delete a dataset</h3>
+  </div>
+
+  <div class="panel-body">
+    <h4>Deleting a dataset will permanently remove the dataset from database.</h4>
+    <form action=" " method="post" class='form-inline'>{% csrf_token %}
+        <p>Are you sure you want to delete "{{ object }}"?</p>
+
+    <br/>
+        <br/>
+        <input class="btn btn-success"  type= "submit" style="background-color:#69899f;color: #d7e2e9;" value=" Confirm Delete" />
+        <input class='btn btn-primary' type="button"  style="background-color:#69899f;color: #d7e2e9;"  value='Cancel' onclick="window.history.back()"/>
+    </form>
+  </div>
+</div>
+{% endblock %}

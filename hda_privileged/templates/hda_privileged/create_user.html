@@ -1,0 +1,45 @@
+{% extends 'hda_privileged/base.html' %}
+
+{% block content %}
+
+{% comment %}Allows a superuser or administrator to create new user accounts. Two classes in forms.py used to obtain all fields. 
+Developed by Kim Hawkins{% endcomment %}
+
+{% comment %} Wrap the form in a panel for appearance {% endcomment %}
+
+<div class='panel panel-primary'>
+
+  <div class="panel-heading" style="background-color:#69899f;color: #d7e2e9;">
+    <h3 class="panel-title">User Management</h3>
+  </div>
+
+  <div class="panel-body">
+    <h4 style="color:#69899f;">Create a New User</h4>
+<form method="post">
+{% csrf_token %}
+{% comment %}Loop through fields in Django UserCreationForm and fields retrived in forms.py NewUserForm{% endcomment %}
+{% for field in form %}
+    <p style="color:#69899f;">
+        {{ field.label_tag}}<br/>
+        {{ field }}
+        {% comment %}Display help text for user automatically{% endcomment %}
+        {% if field.help_text %}
+            <small style="color:grey">{{ field.help_text }}</small>
+        {% endif %}
+        {% comment %}Display errors for user in red{% endcomment %}
+        {% for error in field.errors %}
+            <p style="color: red">{{ error }}</p>
+        {% endfor %}   
+{% endfor %}     
+    </p>
+{% comment %} adds user type field for Profile model{% endcomment %}
+{% for field in profile_form %}
+    <p style="color:#69899f;">
+        {{ field.label_tag}}<br/>
+        {{ field }}</p><br/>
+{% endfor %}
+    <button type="submit">Create User</button> 
+    <button type="submit"><a href="{% url 'priv:user_mgmt' %}" style="color:#000000;">Cancel</a></button>
+</form>
+</div>
+{% endblock %}

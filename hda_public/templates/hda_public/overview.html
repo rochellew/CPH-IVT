@@ -1,0 +1,105 @@
+{% extends 'hda_public/base.html' %}
+{% comment %}
+A template for displaying an overview for a state or county, with multiple small charts at the
+top of the page and a list of available indicators at the bottom.
+
+Context:
+    + place_name (str)
+        Displayed in the page title and heading
+    + place_query_string (str)
+        The URL query string to use when linking to chart pages / fetching data for this page.
+        Should be something like "county=12345" or "state=VA", to match the required URL parameters
+        for the single chart pages and chart series data API endpoints.
+    + all_indicators (dict)
+        NOT a list of Health_Indicator! List of dictionaries with two elements:
+        * name (str)
+            the displayed name for this health indicator
+        * data_set_id (int)
+            a corresponding data set for this health indicator,
+            which we know contains a data point for this location
+        This should represent all Health_Indicators for which a data set exists that contain a
+        data point for the requested location.
+    + important_indicators (dict)
+        NOT a list of Health_Indicator! List of dictionaries with *exactly* the same keys as
+        all_indicators. The elements in this list generate the grid of small charts at the top
+        of the page. Which health indicators are important should be controlled by the "important"
+        property of the Health_Indicator data model.
+
+{% endcomment %}
+
+{% comment %} Required for using the 'static' template tag to load static assets {% endcomment %}
+{% load static %}
+
+{% block title %} Overview for {{place_name}} {% endblock %}
+
+{% block content %}
+
+{% comment %} Page header shows place name {% endcomment %}
+<header class="page-header">
+    <h1>{{place_name}}</h1>
+</header>
+
+{% comment %}
+Top section shows grid of small charts. Uses feature of bootstrap 3 grid system:
+If more than 12 columns are assigned to the same row, they flow down into a new row
+{% endcomment %}
+<section>
+    <h2>Key Indicators</h2>
+    <div class="row">
+    {% for indicator in important_indicators %}
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{{indicator.name}}</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="small-chart" id="chart-id-{{ indicator.data_set_id }}"></div>
+                </div>
+                <div class="panel-footer">
+                    <a href="{% url 'chart' indicator.data_set_id %}?{{place_query_string}}">View Full Size</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</section>
+
+{% comment %} Bottom section shows a list of all available indicators {% endcomment %}
+<section>
+    <h2>All Indicators</h2>
+    <div class="row">
+        <div class="list-group">
+            {% for indicator in all_indicators %}
+            <a class="list-group-item"
+                href="{% url 'chart' indicator.data_set_id %}?{{place_query_string}}">
+                {{indicator.name}}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% comment %} Highcharts scripts from CDN - *excluding* export features {% endcomment %}
+{% block extra_scripts %}
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="{% static 'js/highcharts_single.js' %}"></script>
+
+{% comment %} Initialize one small chart for each important indicator {% endcomment %}
+{% for indicator in important_indicators %}
+<script>
+(function(){
+    const chart_div_id = "chart-id-{{ indicator.data_set_id }}";
+    const percentile_url = "{% url 'api:chart_percentiles' indicator.data_set_id %}";
+    const point_url = "{% url 'api:chart_points' indicator.data_set_id %}?{{place_query_string}}";
+    SingleChart.small(
+        chart_div_id,
+        percentile_url,
+        point_url
+    );
+}());
+</script>
+
+{% endfor %}
+
+{% endblock extra_scripts %}

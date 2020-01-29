@@ -1,0 +1,27 @@
+{% extends 'hda_privileged/base.html' %}
+
+{% comment %} Feyi {% endcomment %}
+{% comment %} Deactivates a user's account, ensuring the user's privileges are revoked. {% endcomment %}
+{% block content %}
+
+{% comment %} Wrap the form in a panel for appearance {% endcomment %}
+<div class='panel panel-primary'>
+
+  <div class="panel-heading" style="background-color:#69899f;color: #d7e2e9;">
+    <h3 class="panel-title">Deactivate User</h3>
+  </div>
+
+  <div class="panel-body">
+    <h4>Deactivating user will render the user unable to access the application's management console.</h4>
+    <form  method="post" class='form-inline'>{% csrf_token %}
+
+        <p>Are you sure you want to deactivate "{{ user.username }}"? </p>
+
+    <br/>
+        <br/>
+        <input class="btn btn-success"  type="submit" style="background-color:#69899f;color: #d7e2e9;" value=" Deactivate" />
+        <input class='btn btn-primary' type="button"  style="background-color:#69899f;color: #d7e2e9;"  value='Cancel' onclick="window.history.back()"/>
+    </form>
+  </div>
+</div>
+{% endblock %}

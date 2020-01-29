@@ -1,0 +1,32 @@
+{% extends 'hda_public/base.html' %}
+{%block title%}Health Indicators{%endblock%}
+{% block content %}
+	<div id="container">
+    <h3> Health Indicators </h3>
+
+    {% if error %}
+    <div class="alert alert-warning" role="alert">
+        {{ error }}
+    </div>
+    {% else %}
+    
+    {% if 'choice=county' in request.GET.urlencode %}
+        <h4>Indicators available for {{county.name}}, {{ state.short }}</h4>
+    <!-- Eliminate comma and empty county name space -->
+    {% else %}
+        <h4>Indicators available for {{ state.short }}</h4>
+    {% endif %}
+
+    <div class="list-group">
+        {% for indicator in indicators %}
+            <!-- determine if user chose county or state path from dashboard -->
+            {% if 'choice=county' in request.GET.urlencode %}
+                <a href="{% url 'chart' indicator.id %}?county={{county.fips5}}" class="list-group-item">{{ indicator.name }}</a>
+            {% else %}
+                <a href="{% url 'chart' indicator.id %}?state={{ state.short }}" class="list-group-item">{{ indicator.name }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+{% endblock %}

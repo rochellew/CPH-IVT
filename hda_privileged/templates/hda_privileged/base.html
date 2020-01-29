@@ -1,0 +1,86 @@
+{% load staticfiles %}
+{%block header %}
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Meta stuff, from: https://getbootstrap.com/docs/3.3/getting-started/#template -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--
+    Bootstrap's base CSS via CDN - previously we hosted this ourselves but
+    I think I've been converted: https://stackoverflow.com/q/24132951
+    NOTE that this is Bootstrap 3.3.x!
+    -->
+  <link rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+    crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- FontAwesome icon fonts -->
+   <link rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.3.1/css/solid.css"
+    integrity="sha384-VGP9aw4WtGH/uPAOseYxZ+Vz/vaTb1ehm1bwx92Fm8dTrE+3boLfF1SpAtB1z7HW"
+    crossorigin="anonymous">
+   <link rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.3.1/css/fontawesome.css"
+    integrity="sha384-1rquJLNOM3ijoueaaeS5m+McXPJCGdr5HcA03/VHXxcp2kX2sUrQDmFc3jR5i/C7"
+    crossorigin="anonymous">
+
+    <!-- Our CSS on top of Bootstrap -->
+   <link href="{% static 'css/theme.css'%}" rel="stylesheet">
+</head>
+{% endblock %}
+
+<body>
+<div class="container">
+
+{% block nav %}
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+
+    {% comment %} Navigation bar contents, left and right {% endcomment %}
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><a href="{% url 'priv:dashboard1' %}"><i class="fa fa-home" style="font-size:20px"></i></a></li>
+        <li><a href="{% url 'priv:dashboard1' %}">Manage Data</a></li>
+        <li><a href="{% url 'priv:user_mgmt' %}">Manage Users</a></li>
+        <li><a href="{% url 'home' %}">Public Site</a></li>
+        <li><a href="https://www.etsu.edu/cph/">CPH</a></li>
+      </ul>
+      <p class="navbar-text navbar-right">
+        <i class="fa fa-user"></i>&nbsp;{{ request.user.username }}&nbsp;&bull;
+        <a href="{% url 'priv:logout' %}" class="navbar-link">sign out</a>
+      </p>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+{% endblock %}
+
+    {% block content %}
+    {% endblock %}
+
+</div>
+
+	<hr>
+	<footer class="application-footer">
+		<div class="container" style="bottom:0">
+
+		</div>
+	</footer>
+</body>
+</html>
+

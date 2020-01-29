@@ -1,0 +1,66 @@
+{% extends 'hda_public/base.html' %}
+{% comment %}
+Page that displayes paginated list of states to select from. Depending on whether the query string 'choice=county'
+is present in the page URL, links will either proceed to the county selection page, or link to the state overview page.
+
+Oluwafeyisayo Oyeniyi, Kim Hawkins, Matt Seiler
+{% endcomment %}
+
+{% block title %} Health Indicators {% endblock %}
+
+{% block content %}
+
+{# This lets us a use a custom tempate tag to encode URL query strings #}
+{% load urlparams %}
+
+{# Grab the 'choice' parameter from the URL query string and store it in a variable #}
+{% with choice=request.GET.choice %}
+
+    {# Table of states to select from - should include only those for the current page, using Django's pagination system #}
+    <table class="table table-hover">
+        <h3> Select a State: </h3>
+    	<thead>
+    		<tr>
+    			<th scope="col">Abbreviation</th>
+    			<th scope="col">Name</th>
+    		</tr>
+    	</thead>
+        <tbody>
+        {% for state in states %}
+    		<tr>
+            {# Did user click county or state button on dashboard? #}
+            {% if choice == 'county' %}
+                <td><a href="{% url 'county_list' state.short %}{% urlparams choice=choice %}">{{ state.short }}</a></td>
+                <td><a href="{% url 'county_list' state.short %}{% urlparams choice=choice %}">{{ state.full }}</a></td>
+            {% else %}
+                <td><a href="{% url 'state' state.short %}">{{ state.short }}</a> </td>
+                <td><a href="{% url 'state' state.short %}">{{ state.full }}</a> </td>
+            {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {# Page numbers with previous/next buttons #}
+    <ul class="pagination center-align">
+    {% if page_obj.has_previous %}
+        <li class="">
+            <a href="{% url 'state_list' %}{% urlparams page=page_obj.previous_page_number choice=choice %}">Previous</a>
+        </li>
+    {% endif %}
+
+    {% for i in range %}
+        <li class="{% if page_obj.number == forloop.counter %}active{% endif %}">
+            <a href="{% url 'state_list' %}{% urlparams page=forloop.counter choice=choice %}">{{ forloop.counter }}</a>
+        </li>
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <li class="">
+            <a href="{% url 'state_list' %}{% urlparams page=page_obj.next_page_number choice=choice %}">Next</a>
+        </li>
+    {% endif %}
+    </ul>
+{% endwith %}
+
+{% endblock %}

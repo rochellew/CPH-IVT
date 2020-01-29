@@ -1,0 +1,51 @@
+{% extends 'hda_privileged/base.html' %}
+
+{% block content %}
+
+{% comment %}Allows user to delete an indicator. Indicators are protected and cannot be deleted if tied to data records. 
+Returns an error message for user if protected. Developed by Kim Hawkins{% endcomment %}
+
+{% comment %} Wrap the form in a panel for appearance {% endcomment %}
+<div class='panel panel-primary'>
+
+  <div class="panel-heading" style="background-color:#69899f;color: #d7e2e9;">
+    <h3 class="panel-title">Delete a health indicator</h3>
+  </div>
+
+  <div class="panel-body">
+    <h4>Deleting a health indicator will permanently remove the indicator from data storage.</h4>
+    <form method="post" class='form-inline'>{% csrf_token %}
+      {% if not messages %}
+        <p>Are you sure you want to delete "{{ object }}"?</p>
+      {% endif %}
+   <br/>
+    <div class="row">
+  <div class='form-group'>
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <div
+            class="alert alert-{{ message.level_tag }}"
+            role="alert">
+            {{object}}{{ message }}
+          </div>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>
+
+    <br/>
+  {% comment %}Indicator is protected and cannot be deleted if message exists{% endcomment %}
+    {% if messages %}          
+    <button type="submit" class="btn btn-success" style="background-color:#69899f;color:#d7e2e9;">
+      <a href="{% url 'priv:dashboard1' %}" style="color:#d7e2e9;">Return to Dashboard</a></button>
+  {% comment %}Indicator is not protected and can be deleted: delete and cancel buttons{% endcomment %}
+    {% else %}          
+        <button type="submit" class="btn btn-success" style="background-color:#69899f;color: #d7e2e9;">
+          Confirm Delete</button>
+    <button type="submit" class="btn btn-success" style="background-color:#69899f;color:#d7e2e9;">
+      <a href="{% url 'priv:dashboard1' %}" style="color:#d7e2e9;">Cancel</a></button>
+  {% endif %}
+</div>  
+{% endblock %}

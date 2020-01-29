@@ -1,0 +1,26 @@
+{% extends 'hda_privileged/base.html' %}
+
+{% block content %}
+{% comment %} Wrap the form in a panel for appearance {% endcomment %}
+<div class='panel panel-primary'>
+
+  <div class="panel-heading" style="background-color:#69899f;color: #d7e2e9;">
+    <h3 class="panel-title">Create a new health indicator</h3>
+  </div>
+
+  <div class="panel-body">
+    <p>Adding a health indicator allows you to upload new data sets for that indicator. Health indicator names should be unique.</p>
+
+    <form class='form-inline' method='POST'>
+      {% csrf_token %}
+
+      {{ form.as_p }}
+
+      <br/>
+
+      <input type="submit" class="btn btn-primary" style="background-color:#69899f;color: #d7e2e9;" value='Add'/>
+      <input type="button" class="btn" value='Cancel' onclick="window.history.back()"/>
+    </form>
+  </div>
+</div>
+{% endblock %}

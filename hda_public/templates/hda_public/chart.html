@@ -1,0 +1,128 @@
+{% extends "hda_public/base.html" %}
+{% comment %}
+Template for the primary chart page: shows a single, large chart that plots the percentile curve
+for a single data set, along with scatter plot points for a specific county or counties.
+
+Context:
+  Required:
+    indicator (Health_Indicator)
+      used for the name and ID of the health indicator being plotted
+    year (int)
+      displays the year the data set is from
+    counties (List FIPS-5)
+      list of 5-digit FIPS codes (str) of counties to include in plot
+
+  Optional:
+    data_set_id (int)
+      ID of Data Set to plot
+      (If this is missing, the page just shows a "woops, sorry" message)
+    parent_state (USPS)
+      If present, used to include a button that links to a plot of all counties in that state
+    messages (List django.contrib.messages)
+      Messages added by the messages framework
+    place_name (string)
+      Used to augment the chart title with a location name if a single county or state is being plotted
+
+Spring 2019 - Jean-Marie Nshimiyimana, Matthew Seiler
+{% endcomment %}
+
+
+{# Need this to use the "static" template tag later in the file #}
+{% load static %}
+
+{# This lets us a use a custom tempate tag to encode URL query strings #}
+{% load urlparams %}
+
+{% block title %}{{indicator.name}} ({{year}}){% endblock %}
+
+{% block content %}
+
+{% comment %} Contains the chart if a data set ID was provied {% endcomment %}
+<div class="row">
+  {% if data_set_id %}
+  <div id="chartdiv"></div>
+    {% comment %}If user is viewing one county in a state button allows user to view all counties in state{% endcomment %}
+    {% if parent_state %}
+      <p>See all counties in this state: <a role="button"
+            href="{% url 'chart' data_set_id %}{% urlparams state=parent_state %}"
+            class="btn btn-default btn-sm">{{ indicator.name }}: {{parent_state}}</a></p>
+    {% comment %}Else if user is viewing all counties in a state, give option to view one county: Kim Hawkins{% endcomment %}
+    {% elif place_name %}
+      <p>See a county in this state:
+        <a role="button"
+          href="{% url 'county_list' current_state %}{% urlparams choice='county' %}"
+          class="btn btn-default btn-sm">{{ indicator.name }}: {{place_name}}</a>
+      </p>
+    {% endif %}
+
+  {% else %}
+  <p>Please select a state and health indicator to display data for</p>
+  {% endif %}
+
+</div>
+
+{% comment %} Contains any alert/notification messages {% endcomment %}
+<div class="row">
+  <div class='form-group'>
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <div
+            class="alert alert-{{ message.level_tag }}"
+            role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+{% comment %} Highchart script CDN  {% endcomment %}
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+<!-- optional, but adds more features -->
+<script src="http://code.highcharts.com/modules/offline-exporting.js"></script>
+<script src="http://code.highcharts.com/modules/export-data.js"></script>
+
+{% comment %} Our Highcharts configuration and loading code {% endcomment %}
+<script src="{% static 'js/highcharts_tooltip_override.js' %}"></script>
+<script src="{% static 'js/highcharts_single.js' %}"></script>
+
+{% if data_set_id %}
+<script>
+(function(){
+  /*{% comment %}
+  Generate the URL we will request the percentile spline series from.
+  {% endcomment %}*/
+  const percentile_url = "{% url 'api:chart_percentiles' data_set_id %}";
+
+  /*{% comment %}
+  Generate the URL we will request the data point scatter series from.
+  Converts the counties list into a single comma-separated string, then
+  appends it to the base URL for the endpoint.
+  {% endcomment %}*/
+  const county_list = "{{ counties | join:',' }}";
+  const point_url = "{% url 'api:chart_points' data_set_id %}?county=" + county_list;
+
+  /*{% comment %}
+  Generate the title for the chart
+  {% endcomment %}*/
+  const title = "{{indicator.name}} ({{year}})" {% if place_name %} + " {{place_name}}"{% endif %};
+
+  SingleChart.large(
+    'chartdiv',
+    percentile_url,
+    point_url,
+    title
+  );
+}());
+</script>
+{% endif %}
+
+{% endblock %}

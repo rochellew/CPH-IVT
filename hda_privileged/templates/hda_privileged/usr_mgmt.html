@@ -1,0 +1,55 @@
+{% extends 'hda_privileged/base.html' %}
+
+{% block content %}
+
+    {% comment %}User management template allows an administrator to view user accounts and click to create a new user,
+deactivate an account, or change a user's password. Developed by Kim Hawkins{% endcomment %}
+
+    {% comment %} Wrap the form in a panel for appearance {% endcomment %}
+    <div class='panel panel-primary'>
+
+        <div class="panel-heading" style="background-color:#69899f;color: #d7e2e9;">
+            <h3 class="panel-title">User Management</h3>
+        </div>
+
+        <div class="panel-body">
+            <h4 style="color:#69899f;">Current Users</h4>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                    {% comment %}admin should not be able to reset superuser password{% endcomment %}
+                    {% if not user.is_superuser and user.is_active %}
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.first_name }}</td>
+                            <td>{{ user.last_name }}</td>
+                            <td>
+                                {% comment %}pass user id in urlparams{% endcomment %}
+                                <a href="{% url 'priv:pswd_reset' user.id %}"><i class="fa fa-key" aria-hidden="true"
+                                                                                 style="color: #69899f;"> Reset
+                                    Password</i></a></td>
+                            <td>
+                                <a href={% url 'priv:deactivate' user.id %}><i class="fa fa-remove"
+                                                                               style="color: #69899f; "> Deactivate
+                                    User </i> </a>
+                            </td>
+
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+            <a role="button"
+               href="{% url 'priv:create_user' %}"
+               class="btn btn-primary btn-med"
+               style="background-color:#69899f;color: #d7e2e9;">Add User</a>
+        </div>
+{% endblock %}

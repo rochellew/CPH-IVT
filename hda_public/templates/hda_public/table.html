@@ -1,0 +1,29 @@
+{% extends 'hda_public/base.html' %}
+{%block title%}Health Indicators{%endblock%}
+{% block content %}
+	<div id="container">
+	<table class="table table-hover">
+		<thead>
+			<tr>
+			<th scope="col"></th>
+			<th scope="col">County</th>
+			<th scope="col">Value</th>
+			<th scope="col">Percentile</th>
+			<th scope="col">Data set</th>
+			</tr>
+		</thead>
+		
+		<tbody>
+			{% for dataset in datasets %}
+				<tr>
+					<td>{{ dataset.id }}</td>
+					<td>{{ dataset.county.name }}</td>
+					<td>{{ dataset.value }}</td>
+					<td>{{ dataset.percentile }}</td>
+					<td>{{ dataset.data_set.indicator.name }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+
+	</table>
+{% endblock %}

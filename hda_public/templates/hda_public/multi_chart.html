@@ -1,0 +1,186 @@
+<!--
+    Purpose: The code in the file will be used as the front-end that will display
+             multiple charts using Ajax
+
+    Author: JMN
+    Date last modified: 2/12/2019
+-->
+
+<!-- Import base.html template from hda_public -->
+{% extends "hda_public/base.html" %}
+
+<!-- Display the title as the indicator name and the year associated with the indicator -->
+{% block title %}{{indicator.name}} ({{year}}){% endblock %}
+
+<!-- Content displayed to the user will be added to the block content -->
+{% block content %}
+    <div class="row">
+         <div class="col-sm-6">
+              {% if data_series %}
+              <div id="chartdiv"></div>
+            {% if parent_state %}
+                <p>See all counties in this state: <a role="button"
+                      href="{% url 'chart' indicator.id %}?state={{ parent_state | urlencode }}"
+                      class="btn btn-default btn-sm">{{ indicator.name }}: {{parent_state}}</a>
+                </p>
+            {% endif %}
+          {% else %}
+            <p>Please select a state and health indicator to display data for</p>
+          {% endif %}
+        </div>
+        <div class="col-sm-6">
+              {% if data_series %}
+              <div id="chartdiv1"></div>
+            {% if parent_state %}
+                <p>See all counties in this state: <a role="button"
+                      href="{% url 'chart' indicator.id %}?state={{ parent_state | urlencode }}"
+                      class="btn btn-default btn-sm">{{ indicator.name }}: {{parent_state}}</a>
+                </p>
+            {% endif %}
+          {% else %}
+            <p>Please select a state and health indicator to display data for</p>
+          {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+
+    {% comment %} Highchart script CDN  {% endcomment %}
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="http://code.highcharts.com/modules/exporting.js"></script>
+    <script src="http://code.highcharts.com/modules/offline-exporting.js"></script>
+<script src="http://code.highcharts.com/modules/export-data.js"></script>
+
+{% if data_series %}
+<script>
+/*
+{% comment %}
+This is a self-executing function; we wrap our JS code in these so that our variables
+are not leaked into global scope and potentailly conflict with other globals.
+{% endcomment %}
+*/
+(function() {
+  // variable to hold the tooltip when we clone it
+  var cloneToolTip = null;
+  // options that apply to the entire chart ("plot")
+  // can be overriden by individual data series / points
+  const plotOptionsObj = {
+    series: {
+      allowPointSelect: true,
+      marker: {
+        states: {
+          select: {
+            enabled: true,
+            fillColor: '#66b3ff',
+            symbol: 'circlepin',
+            radius: 7,
+            lineWidth: 0
+          }
+        }
+      },
+      point: {
+        events: {
+          click: function() {
+              if (cloneToolTip){
+                  chart.container.firstChild.removeChild(cloneToolTip);
+              }
+              cloneToolTip = this.series.chart.tooltip.label.element.cloneNode(true);
+              chart.container.firstChild.appendChild(cloneToolTip);
+          }
+        }
+      }
+    }
+  };
+  // options for the x-axis
+  const xAxisObj = {
+    labels: {
+      formatter: function() {
+          if (this.value > 0 && this.value == 1){return this.value + 'st';}
+          if (this.value > 1){return this.value + 'th';}
+      },
+      rotation: -45,
+    },
+    title: {
+      enabled: true,
+      text: 'Percentile',
+    },
+    crosshair: {
+      label: {
+        enabled: true,
+        padding: 8
+      },
+      color: "#cccccc",
+      dashStyle: "dash",
+      width: 1,
+    },
+    min: 0,
+    max: 100,
+    tickInterval: 5,
+  };
+  // options for the y-axis
+  const yAxisObj = {
+    crosshair: {
+      color: "#cccccc",
+      dashStyle: "dash",
+      width: 1,
+    }
+  };
+  // data series - data injected from context
+  const seriesArr = [
+    {
+      name: 'Percentiles',
+      type: "spline",
+      data: {{ data_percentiles | safe }},
+      color: "gray",
+      enableMouseTracking: false,
+      marker: {
+        enabled: false
+      }
+    },
+    {
+      name: 'Values',
+      type: "scatter",
+      data: {{ data_series | safe }},
+      color: 'red',
+      enableMouseTracking: true,
+      tooltip: {
+        pointFormat: "{point.name}<br/>p: <b>{point.x}%</b><br/>v: <b>{point.y}</b><br/>",
+        valueDecimals: 1,
+      },
+      marker: {
+        radius: 3,
+        symbol: "circle"
+      }
+    }
+  ];
+  // full highcharts configuration object
+  const config = {
+  // The tooltip settings position it in the top left corner
+  // using x and y coordinates
+    tooltip: {
+        positioner: function () {
+            return { x: 80, y: 50 };
+        },
+        shadow: false,
+        borderWidth: 0,
+        backgroundColor: 'rgba(255,255,255,0.8)'},
+    plotOptions: plotOptionsObj,
+    xAxis: xAxisObj,
+    yAxis: yAxisObj,
+    series: seriesArr,
+    title: {
+      text: '{{indicator.name}} ({{year}})' {% if place_name %} + ' {{place_name}}'{% endif %}
+    }
+  };
+  // create the chart!
+  var chart = new Highcharts.chart('chartdiv', config);
+  var chart1 = new Highcharts.chart('chartdiv1', config);
+})();
+
+</script>
+{% endif %}
+
+{% endblock %}
+

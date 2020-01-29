@@ -1,0 +1,156 @@
+{% load staticfiles %}
+<!doctype html>
+<html>
+<head>
+    <style>
+        img.a {
+            vertical-align: middle;
+        }
+    </style>
+    <!-- Meta stuff, from: https://getbootstrap.com/docs/3.3/getting-started/#template -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--
+    Bootstrap's base CSS via CDN - previously we hosted this ourselves but
+    I think I've been converted: https://stackoverflow.com/q/24132951
+    NOTE that this is Bootstrap 3.3.x!
+    -->
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+          crossorigin="anonymous">
+
+    <!-- FontAwesome icon fonts -->
+    <link rel="stylesheet"
+          href="https://use.fontawesome.com/releases/v5.3.1/css/solid.css"
+          integrity="sha384-VGP9aw4WtGH/uPAOseYxZ+Vz/vaTb1ehm1bwx92Fm8dTrE+3boLfF1SpAtB1z7HW"
+          crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="https://use.fontawesome.com/releases/v5.3.1/css/fontawesome.css"
+          integrity="sha384-1rquJLNOM3ijoueaaeS5m+McXPJCGdr5HcA03/VHXxcp2kX2sUrQDmFc3jR5i/C7"
+          crossorigin="anonymous">
+
+    <!-- Our CSS on top of Bootstrap -->
+    <link href="{% static 'css/theme.css' %}" rel="stylesheet">
+
+    <title> {% block title %}{% endblock %} </title>
+
+</head>
+<body>
+<div class="container">
+    <h1></h1>
+    {% block nav %}
+    <nav class="navbar navbar-default navBackground">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <!-- brand image icon (ETSU shield) -->
+                <a class="navbar-brand" href="{% url 'home' %}">
+                    <img src="/static/img/eshield.png"
+                        alt="ETSU shield logo"
+                        width="45"
+                        height="45" />
+                </a>
+                <!-- brand texts -->
+                <div class="navbar-brand-text navbar-left">
+                    <h1>College of Public Health</h1>
+                    <h2>Indicator Visualization Tool</h2>
+                </div>
+                <!-- menu button that shows when collapsed -->
+                <button type="button"
+                        class="navbar-toggle collapsed"
+                        data-toggle="collapse"
+                        data-target="#menuDropdown"
+                        aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+
+            <!-- items that collapse on mobile -->
+            <div class="collapse navbar-collapse" id="menuDropdown">
+
+                <!-- search box -->
+                <form class="navbar-form navbar-left" action={% url 'search' %} method="GET">
+                    <div id='search_container' class="form-group">
+                        <input id="search_box"
+                            autocomplete="off"
+                            name="query"
+                            type="search"
+                            class="form-control"
+                            placeholder="Search counties..."/>
+                    </div>
+                    <button type="submit" class="btn btn-default">Search</button>
+                </form>
+
+                <!-- home button -->
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="nav navbar-nav navbar--right">
+                        <a href="{% url 'home' %}"> <i class="fa fa-home"
+                                        style="font-size:20px"></i> Home</a>
+
+                    </li>
+                </ul>
+            </div>
+        </div><!-- /container -->
+    </nav><!-- /navbar-default -->
+    {% endblock %}
+</div><!-- /container -->
+
+<div class="container">
+
+    {% block content %}
+
+    {% endblock %}
+</div>
+
+<hr>
+{% block footer %}
+    <footer class="application-footer">
+        <div class="container" style="bottom:0">
+            <a href="{% url 'priv:login' %}" style="float:right; color:MidnightBlue"><i class="fas fa-user"></i>
+                Admin</a>
+            <h4 style="float:left; font-size:10px">ETSU College of Public Health | 104 Lamb Hall | Box 70623 | Johnson
+                City, TN 37614 | Tel.: 423-439-4243 | Fax.: 423-439-5238</h4>
+        </div>
+    </footer>
+{% endblock %}
+
+<!-- Bootstrap's JS (again, note that this is 3.3.x) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js'></script>
+
+<!-- Place for child pages to add more Javascript if needed -->
+{% block extra_scripts %}
+{% endblock %}
+
+
+<!-- autocomplete for search -->
+<!-- this loads the library: typeahead.js + bloodhound.js -->
+<script src="{% static 'js/typeahead.bundle.js' %}"></script>
+<!-- this loads a function that sets up our instance of the library -->
+<script src="{% static 'js/typeahead_config.js' %}"></script>
+<!-- this executes that function. it requires some URLs that only the template generator knows
+the canonical version of, so we construct them here and pass them in as strings -->
+<script>
+    const typeahead_cfg = {
+        prefetch: {
+            county: "{% static 'prefetch/county.json' %}",
+            state: "{% static 'prefetch/state.json' %}"
+        },
+        remote: {
+            county: "{% url 'api:suggest_county' '%Q%' %}",
+            state: "{% url 'api:suggest_state' '%Q%' %}",
+            wildcard: "{{ '%Q%' | urlencode }}",
+        }
+    };
+    TypeaheadSetup.init(typeahead_cfg);
+</script>
+</body>
+</html>

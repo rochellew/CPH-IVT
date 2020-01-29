@@ -1,0 +1,65 @@
+{% extends 'hda_privileged/base_minimal.html' %}
+
+{%block title%}Login{%endblock%}
+
+{% block content %}
+
+<div class='container' style="margin-top: 10em;">
+    <div class="signin-row row">
+        <div class="col-md-offset-3 col-md-6">
+            <div class="container-signin panel panel-info">
+
+                {% comment %} The login form {% endcomment %}
+                <form
+                    action="{% url 'priv:login' %}"
+                    method='POST'
+                    id='loginForm'
+                    class='form-horizontal'
+                    autocomplete='off'>
+                    {% csrf_token %}
+
+                    {% for hidden_field in form.hidden_fields %}
+                    {{ hidden_field }}
+                    {% endfor %}
+
+                    <div class="form-inner panel-body">
+                        <legend>Please Login</legend>
+
+                        {% comment %} error, warning, and info messages for different states {% endcomment %}
+                        {% if form.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            Invalid login; please try again
+                        </div>
+                        {% elif next %}
+                            {% if user.is_authenticated %}
+                            <div class="alert alert-warning" role="alert">
+                                Your account doesn't have access to this page.
+                                To proceed, please login with an account that has access.
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info">
+                                Please login to see this page
+                            </div>
+                            {% endif %}
+                        {% endif %}
+
+                        {% comment %} the username field {% endcomment %}
+                        {% include 'hda_privileged/labeled_form_group.html' with field=form.username %}
+
+                        {% comment %} the password field {% endcomment %}
+                        {% include 'hda_privileged/labeled_form_group.html' with field=form.password %}
+                    </div>
+
+                    {% comment %} Panel footer with buttons {% endcomment %}
+                    <footer class="signin-actions panel-footer">
+                        <input class="btn btn-primary" type='submit' id="submit" value='Login'/>
+                        <input type="hidden" name="next" value="{{ next }}"/>
+                        <a class="btn btn-primary" role="button" href="{% url 'home' %}">Cancel</a>
+                    </footer>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

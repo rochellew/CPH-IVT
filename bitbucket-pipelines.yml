@@ -1,0 +1,73 @@
+# this is the docker image our pipelines containers use
+# (a fresh container is spun up for every 'step')
+image: python:3.6
+
+# these define YAML anchors (https://confluence.atlassian.com/bitbucket/yaml-anchors-960154027.html)
+# and external services (https://confluence.atlassian.com/bitbucket/test-with-databases-in-bitbucket-pipelines-856697462.html)
+# for pipelines to reference/use
+definitions:
+  steps:
+    - step: &test-with-postgres
+        name: Test with PostreSQL
+        caches:
+          - pip
+        script:
+          - pip install -r requirements/production.txt
+          - export DJANGO_SETTINGS_MODULE="health_data_project.settings.pipelines"
+          - python manage.py migrate
+          - python manage.py test
+        services:
+          - postgres
+  services:
+    postgres:
+      image: postgres
+      variables:
+        POSTGRES_DB: 'pipelines'
+        POSTGRES_USER: 'test_user'
+        POSTGRES_PASSWORD: 'test_user_password'
+
+# actual pipelines definitions
+pipelines:
+  # these steps run for any commit on any branch that does not match
+  # one of the branches listed under the 'branches' section below
+  default:
+    - step:
+        name: Test
+        caches:
+          - pip
+        script:
+          - pip install -r requirements/development.txt
+          - python manage.py test
+  # these steps run only for specific branches
+  branches:
+    # test commits on develop against the production database engine
+    develop:
+      - step: *test-with-postgres
+    # on master
+    # 1. test against postgres
+    # 2. package into zip and save as artifact
+    # 3. deploy to elastic beanstalk (push-button)
+    master:
+      - step: *test-with-postgres
+      - step:
+          name: Package
+          script:
+            - apt update && apt install -y zip
+            - zip package.zip --symlinks -r . -x ".git/*" .flake8 .gitignore .pyment  *.md
+          artifacts:
+            - package.zip
+      # https://bitbucket.org/atlassian/aws-elasticbeanstalk-deploy/src/master/README.md
+      - step:
+          name: Deploy
+          deployment: production
+          trigger: manual
+          script:
+            - pipe: atlassian/aws-elasticbeanstalk-deploy:0.2.7
+              variables:
+                AWS_ACCESS_KEY_ID: $AWS_KEY_ID
+                AWS_SECRET_ACCESS_KEY: $AWS_KEY_VAL
+                AWS_DEFAULT_REGION: 'us-east-2'
+                APPLICATION_NAME: 'CapstoneDeploy'
+                ENVIRONMENT_NAME: 'Capstonedeploy-env'
+                ZIP_FILE: 'package.zip'
+                S3_BUCKET: 'elasticbeanstalk-us-east-2-272055250160'

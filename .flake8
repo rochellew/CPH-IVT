@@ -1,0 +1,14 @@
+[flake8]
+# warn when lines are longer than 99 columns
+max-line-length = 99
+# warn when functions have a high mccabe complexity:
+max-complexity = 15
+# exclude paths matching the following patterns from linting:
+exclude =
+    .git,
+    .idea,
+    .vscode,
+    media,
+    requirements,
+    static,
+    __pycache__,
