@@ -1,6 +1,6 @@
 # this is the docker image our pipelines containers use
 # (a fresh container is spun up for every 'step')
-image: python:3.6
+image: python:3.11
 
 # these define YAML anchors (https://confluence.atlassian.com/bitbucket/yaml-anchors-960154027.html)
 # and external services (https://confluence.atlassian.com/bitbucket/test-with-databases-in-bitbucket-pipelines-856697462.html)

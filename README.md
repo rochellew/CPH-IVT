@@ -8,7 +8,7 @@ This is a Python project using pip for package management, virtualenv for depend
 
 ### Prerequisites ###
 
-1. Python 3.7.x
+1. Python 3.11.x
 2. pip, the Python package manager ([howto](pip))
 3. virtualenv or virtualenvwrapper ([windows](vew-win), [general](vew))
 
